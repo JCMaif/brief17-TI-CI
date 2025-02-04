@@ -18,8 +18,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-# mvn -B package exécute les tests. On peut faire les tests manuellement aussi :
-    # - name: Run tests
-      # run: mvn test -Dspring.profiles.active=test
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml 
+    - name: Cache SonarQube packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Build and analyze
+      env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=JCMaif_brief17-TI-CI
